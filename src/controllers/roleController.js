@@ -4,6 +4,7 @@ import {
   updateRoleService,
 } from "../services/roleService.js";
 import { sendResponse } from "../utils/response.js";
+import { RoleDto } from "../dto/roleDto.js";
 
 export const createRole = async (req, res) => {
   try {
@@ -44,8 +45,9 @@ export const updateRole = async (req, res) => {
 
     const data = await updateRoleService(roleId, roleDto);
 
-    return sendResponse(res, 200, "Role updated successfully.", data.roleId);
+    return sendResponse(res, 200, "Role updated successfully.", data);
   } catch (err) {
+    console.error("error updating role", err);
     return sendResponse(res, 500, err.message, null);
   }
 };
