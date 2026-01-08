@@ -9,15 +9,18 @@ import {
 const router = express.Router();
 
 router.put(
+  // "/:doctorId/:departmentId/:clinicId",
   "/:doctorId/:departmentId",
   authenticate,
-  authorizeModule("DM", "update"),
+  authorizeModule("CM", "update"),
   updateDoctorShifts
 );
+
 router.get(
+  // "/:doctorId/:departmentId/:clinicId",
   "/:doctorId/:departmentId",
   authenticate,
-  authorizeModule("DM", "read"),
+  authorizeModule("CM", "read"),
   getDoctorShifts
 );
 
