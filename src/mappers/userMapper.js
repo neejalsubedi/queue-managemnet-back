@@ -1,6 +1,6 @@
 export const mapUserToResponse = (user) => ({
     id: user.id,
-    fullName: user.full_name,
+    fullName: user.fullname,
     email: user.email,
     roleId: user.role_id,
     isActive: user.is_active,

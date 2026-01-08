@@ -1,6 +1,6 @@
 export class UserDto {
   constructor(body) {
-    this.fullname = body.fullname;
+    this.fullname = body.fullName;
     this.email = body.email;
     this.password = body.password;
     this.role_id = body.role_id;

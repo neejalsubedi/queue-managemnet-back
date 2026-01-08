@@ -4,7 +4,7 @@ import pool from "../config/db.js";
 export const createUserQuery = async ({ fullName, email, hashedPassword, role_id, isActive }) => {
   const result = await pool.query(
     `
-    INSERT INTO users (full_name, email, password, role_id, isActive)
+    INSERT INTO users (fullname, email, password, role_id, isActive)
     VALUES ($1, $2, $3, $4, $5)
     RETURNING id
     `,
