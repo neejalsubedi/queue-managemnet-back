@@ -10,8 +10,13 @@ import departmentRoutes from "./routes/departmentRoutes.js";
 import initRoutes from "./routes/initRoutes.js";
 import roleRoutes from "./routes/roleRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import patientRoutes from "./routes/patientRoutes.js";
 import doctorRoutes from "./routes/doctorRoutes.js";
 import doctorShiftRoutes from "./routes/doctorShiftRoutes.js";
+import appointmentRoutes from "./routes/appointmentRoutes.js";
+import appointmentMetricsRoutes from "./routes/appointmentMetricsRoutes.js";
+import appointmentQueueRoutes from "./routes/appointmentQueueRoutes.js";
+import predictWaitTimeRoutes from "./routes/predictWaitTimeRoutes.js";
 
 dotenv.config();
 
@@ -26,10 +31,21 @@ initDb().catch((err) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/init", initRoutes);
 app.use("/api/role", roleRoutes);
+
 app.use("/api/users", userRoutes);
+app.use("/api/patient", patientRoutes);
+
 app.use("/api/clinics", clinicRoutes);
 app.use("/api/departments", departmentRoutes);
 app.use("/api/doctor", doctorRoutes);
 app.use("/api/doctor-shifts", doctorShiftRoutes);
+
+app.use("/api/appointments", appointmentRoutes);
+
+app.use("/api/metrics", appointmentMetricsRoutes);
+
+app.use("/api/queue", appointmentQueueRoutes);
+
+app.use("/api/predict-wait-time", predictWaitTimeRoutes);
 
 export default app;

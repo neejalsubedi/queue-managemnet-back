@@ -4,21 +4,27 @@ import USER_TYPE from "../enums/userType.enum.js";
 
 export const createUserQuery = async ({
   full_name,
+  username,
   email,
   hashedPassword,
+  phone,
+  gender,
   role_id,
   isActive,
 }) => {
   const result = await pool.query(
     `
-    INSERT INTO users (full_name, email, password, role_id, user_type, isActive)
-    VALUES ($1, $2, $3, $4, $5, $6)
+    INSERT INTO users (full_name, username, email, password, phone, gender, role_id, user_type, isActive)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
     RETURNING id
     `,
     [
       full_name,
+      username,
       email,
       hashedPassword,
+      phone,
+      gender,
       role_id,
       USER_TYPE.Internal,
       isActive ?? true,
@@ -59,9 +65,13 @@ export const getStaffWithClinicsQuery = async () => {
   const result = await pool.query(`
     SELECT
       u.id,
-      u.full_name AS fullname,
+      u.full_name,
+      u.username,
       u.email,
+      u.phone,
+      u.gender,
       u.isactive,
+      u.role_id,
       r.role_name,
       COALESCE(
         JSON_AGG(
@@ -79,9 +89,9 @@ export const getStaffWithClinicsQuery = async () => {
     WHERE u.user_type = 'INTERNAL'
       And u.isactive = TRUE
       AND u.role_id <> (
-          SELECT id FROM roles WHERE role_name = 'admin' LIMIT 1
+          SELECT id FROM roles WHERE code = 'SUPERADMIN' LIMIT 1
       )
-    GROUP BY u.id, r.role_name
+    GROUP BY u.id, u.role_id, r.role_name
     ORDER BY u.id ASC
   `);
 
@@ -116,19 +126,29 @@ export const getUserByIdWithClinicsQuery = async (id) => {
     SELECT
       u.id,
       u.full_name,
+      u.username,
       u.email,
+      u.phone,
+      u.gender,
       u.role_id,
       u.isactive,
+      u.role_id,
       r.role_name,
       COALESCE(
-        JSON_AGG(cs.clinic_id) FILTER (WHERE cs.clinic_id IS NOT NULL),
+        JSON_AGG(
+          DISTINCT JSONB_BUILD_OBJECT(
+            'id', c.id,
+            'name', c.name
+          )
+        ) FILTER (WHERE c.id IS NOT NULL),
         '[]'
-      ) AS clinic_ids
+      ) AS clinics
     FROM users u
     LEFT JOIN roles r ON r.id = u.role_id
     LEFT JOIN clinic_staff cs ON cs.user_id = u.id
+    LEFT JOIN clinics c ON c.id = cs.clinic_id
     WHERE u.id = $1 AND u.isactive = TRUE
-    GROUP BY u.id, r.role_name
+    GROUP BY u.id, u.role_id, r.role_name
   `,
     [id]
   );
@@ -147,15 +167,18 @@ export const getUserByIdWithClinicsQuery = async (id) => {
 //   return result.rows[0];
 // };
 
-export const updateUserQuery = async (id, { full_name, email, role_id }) => {
+export const updateUserQuery = async (
+  id,
+  { full_name, username, email, phone, gender, role_id }
+) => {
   const result = await pool.query(
     `
     UPDATE users
-    SET full_name = $1, email = $2, role_id = $3
-    WHERE id = $4
+    SET full_name = $1, username = $2, email = $3, phone = $4, gender = $5, role_id = $6
+    WHERE id = $7
     RETURNING *
     `,
-    [full_name, email, role_id, id]
+    [full_name, username, email, phone, gender, role_id, id]
   );
   return result.rows[0];
 };
@@ -167,6 +190,7 @@ export const deleteUserQuery = async (id) => {
     SET isactive = FALSE
     WHERE id = $1
       AND isactive = TRUE
+      AND user_type = 'INTERNAL'
       RETURNING id
     `,
     [id]

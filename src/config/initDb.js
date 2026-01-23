@@ -29,11 +29,14 @@ const runSqlFiles = async () => {
       "roles.sql",
       "users.sql",
       "clinics.sql",
+      "clinic_staff.sql",
       "departments.sql",
       "doctors.sql",
       "doctor_departments.sql",
       "doctor_shifts.sql",
       "role_permissions.sql",
+      "patient_profiles.sql",
+      "appointments.sql",
     ];
 
     for (const name of order) {

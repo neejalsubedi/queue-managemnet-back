@@ -41,7 +41,7 @@ const modules = [
     name: "Role Management",
     code: "RM",
     description: "Manage all the roles.",
-    icon: "User",
+    icon: "UserRoundPen",
     path: "/role-management",
   },
   {
@@ -51,8 +51,30 @@ const modules = [
     name: "Clinic Management",
     code: "CM",
     description: "Manage all the clinics.",
-    icon: "User",
+    icon: "HousePlus",
     path: "/clinic-management",
+  },
+
+  // Patient Management
+  {
+    id: 8,
+    parent_id: null,
+    orders: 3,
+    name: "Patient Management",
+    code: "PM",
+    description: "Manage all the patients.",
+    icon: "UserRoundCog",
+    path: "/patient-management",
+  },
+  {
+    id: 9,
+    parent_id: null,
+    orders: 4,
+    name: "Appointment Management",
+    code: "AM",
+    description: "Manage all the appointments.",
+    icon: "CalendarPlus",
+    path: "/appointment-management",
   },
 
   //Reports
