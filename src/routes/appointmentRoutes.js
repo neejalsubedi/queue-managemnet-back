@@ -5,9 +5,12 @@ import {
   cancelAppointment,
   checkInAppointment,
   completeAppointment,
+  todayAppointmentsWithWaitingTime,
   noShowAppointment,
   staffBookAppointment,
   startAppointment,
+  getAppointmentHistory,
+  updateAppointment,
 } from "../controllers/appointmentController.js";
 
 const router = express.Router();
@@ -16,37 +19,55 @@ router.post(
   "/book",
   authenticate,
   authorizeModule("AM", "write"),
-  staffBookAppointment
+  staffBookAppointment,
 );
 router.put(
   "/check-in/:id",
   authenticate,
   authorizeModule("AM", "update"),
-  checkInAppointment
+  checkInAppointment,
 );
 router.put(
   "/start/:id",
   authenticate,
   authorizeModule("AM", "update"),
-  startAppointment
+  startAppointment,
 );
 router.put(
   "/complete/:id",
   authenticate,
   authorizeModule("AM", "update"),
-  completeAppointment
+  completeAppointment,
 );
 router.put(
   "/cancel/:id",
   authenticate,
   authorizeModule("AM", "update"),
-  cancelAppointment
+  cancelAppointment,
 );
 router.put(
   "/no-show/:id",
   authenticate,
   authorizeModule("AM", "update"),
-  noShowAppointment
+  noShowAppointment,
+);
+router.get(
+  "/live",
+  authenticate,
+  authorizeModule("AM", "read"),
+  todayAppointmentsWithWaitingTime,
+);
+router.get(
+  "/history",
+  authenticate,
+  authorizeModule("AM", "read"),
+  getAppointmentHistory,
+);
+router.put(
+  "/update/:id",
+  authenticate,
+  authorizeModule("AM", "update"),
+  updateAppointment,
 );
 
 export default router;
