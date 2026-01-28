@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS appointments (
 
     -- Appointment classification
     appointment_type apppointment_type,
-
+    
     -- Scheduling
     appointment_date DATE NOT NULL,
     preferred_time appointment_time,
