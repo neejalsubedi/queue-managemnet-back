@@ -1,9 +1,11 @@
 import { Pool } from "pg";
+import fs from "fs";
 
 const pool = new Pool({
   user: "postgres",
   host: "localhost",
   database: "aqms",
+  password: "2023"
 });
 
 pool.on("connect", () => {
