@@ -49,7 +49,7 @@ BEGIN
     IF NOT EXISTS (
         SELECT 1 FROM pg_type WHERE typname = 'appointment_time'
     ) THEN
-        CREATE TYPE appointment_time AS ENUM (
+        CREATE TYPE appointment_time AS ENUM (   
             'MORNING',
             'AFTERNOON',
             'EVENING',
