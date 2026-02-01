@@ -1,5 +1,4 @@
 import { Pool } from "pg";
-import fs from "fs";
 
 const pool = new Pool({
   user: "postgres",
