@@ -25,8 +25,10 @@ import {
   getPatientPendingAppointmentsQuery,
   getUpcomingAppointmentsQuery,
   insertAppointmentQuery,
+  insertFollowUpAppointmentQuery,
   noShowAppointmentQuery,
   rejectAppointmentQuery,
+  rescheduleAppointmentQuery,
   startAppointmentQuery,
   updateAppointmentQuery,
 } from "../models/appointmentModel.js";
@@ -584,6 +586,134 @@ export const rejectAppointmentService = async (appointmentId, data) => {
   } catch (err) {
     await client.query("ROLLBACK");
     throw err;
+  } finally {
+    client.release();
+  }
+};
+
+export const createFollowUpAppointmentService = async (
+  previousAppointmentId,
+  staffId,
+  dto,
+) => {
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    const previous = await checkAppointmentExistsQuery(
+      client,
+      previousAppointmentId,
+    );
+
+    if (!previous) {
+      throw new Error("Previous appointment not found");
+    }
+
+    if (previous.status !== APPOINTMENT_STATUS.Completed) {
+      throw new Error(
+        "Follow-up can only be created from completed appointments",
+      );
+    }
+
+    if (new Date(dto.appointment_date) <= new Date()) {
+      throw new Error("Follow-up appointment must be on a future date");
+    }
+
+    const doctorId = dto.doctor_id || previous.doctor_id;
+
+    const estimatedDuration = APPOINTMENT_DURATION[dto.appointment_type];
+
+    await checkDoctorAvailability(client, {
+      doctor_id: doctorId,
+      clinic_id: previous.clinic_id,
+      department_id: previous.department_id,
+      appointment_date: dto.appointment_date,
+      scheduled_start_time: dto.scheduled_start_time,
+      estimated_duration: estimatedDuration,
+    });
+
+    const queueNumber = await assignQueueNumberQuery(client, {
+      doctor_id: doctorId,
+      clinic_id: previous.clinic_id,
+      department_id: previous.department_id,
+      appointment_date: dto.appointment_date,
+    });
+
+    const result = await insertFollowUpAppointmentQuery(
+      client,
+      previous,
+      { ...dto, doctor_id: doctorId },
+      staffId,
+      queueNumber,
+      estimatedDuration,
+    );
+
+    await client.query("COMMIT");
+
+    return result;
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
+};
+
+export const rescheduleAppointmentService = async (
+  appointmentId,
+  staffId,
+  data,
+) => {
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    const appointment = await checkAppointmentExistsQuery(
+      client,
+      appointmentId,
+    );
+
+    if (!appointment) {
+      throw new Error("Appointment not found");
+    }
+
+    if (
+      ![APPOINTMENT_STATUS.Booked, APPOINTMENT_STATUS.Requested].includes(
+        appointment.status,
+      )
+    ) {
+      throw new Error("Appointment cannot be rescheduled");
+    }
+
+    const estimatedDuration =
+      APPOINTMENT_DURATION[
+        data.appointment_type || appointment.appointment_type
+      ];
+
+    await checkDoctorAvailability(client, {
+      doctor_id: data.doctor_id || appointment.doctor_id,
+      clinic_id: data.clinic_id || appointment.clinic_id,
+      department_id: data.department_id || appointment.department_id,
+      appointment_date: data.appointment_date,
+      scheduled_start_time: data.scheduled_start_time,
+      estimated_duration: estimatedDuration,
+      exclude_appointment_id: appointmentId,
+    });
+
+    const result = await rescheduleAppointmentQuery(
+      client,
+      appointmentId,
+      staffId,
+      data,
+    );
+
+    await client.query("COMMIT");
+    return result;
+  } catch (e) {
+    await client.query("ROLLBACK");
+    throw e;
   } finally {
     client.release();
   }

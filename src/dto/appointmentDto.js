@@ -1,3 +1,5 @@
+import APPOINTMENT_TYPE from "../enums/appointmentType.enum.js";
+
 export class StaffAppointmentDto {
   constructor(body) {
     this.patient_id = body.patient_id;
@@ -28,5 +30,26 @@ export class StaffAppointmentDto {
 export class CancelAPpointmentDto {
   constructor(body) {
     this.reason = body.reason?.trim();
+  }
+}
+export class FollowUpAppointmentDto {
+  constructor(body) {
+    this.appointment_date = body.appointment_date;
+    this.scheduled_start_time = body.scheduled_start_time;
+    this.appointment_type = body.appointment_type || APPOINTMENT_TYPE.Follow_up;
+    this.doctor_id = body.doctor_id || null;
+    this.notes = body.notes || null;
+  }
+}
+
+export class RescheduleAppointmentDto {
+  constructor(body) {
+    this.appointment_date = body.appointment_date;
+    this.scheduled_start_time = body.scheduled_start_time;
+    // this.appointment_type = body.appointment_type || APPOINTMENT_TYPE.Follow_up;
+    this.doctor_id = body.doctor_id || null;
+    this.clinic_id = body.clinic_id || null;
+    this.department_id = body.department_id || null;
+    this.notes = body.notes || null;
   }
 }
